@@ -244,16 +244,16 @@ This project is configured for easy deployment to Render:
 
 2. **Create a new Web Service on Render**
    - Connect your GitHub repository
-   - Use the following settings:
-     - **Build Command**: `bash build.sh`
-     - **Start Command**: `cd server && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+   - **Root Directory**: `server`
+   - **Build Command**: `bash build.sh`
+   - **Start Command**: `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2`
 
 3. **Set Environment Variables**
 
    ```
    SECRET_KEY=your-secret-key-here
    DEBUG=False
-   ALLOWED_HOSTS=your-render-url.onrender.com
+   ALLOWED_HOSTS=your-app-name.onrender.com
    FRONTEND_URL=https://your-frontend-url.com
    DB_NAME=your-db-name
    DB_USER=your-db-user
