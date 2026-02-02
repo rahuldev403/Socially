@@ -1,4 +1,4 @@
-# Green-ITT
+# Socially
 
 A modern social media platform built with React and Django, featuring real-time posts, nested comments, and a karma-based leaderboard system.
 
