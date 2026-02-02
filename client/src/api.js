@@ -190,7 +190,7 @@ export function buildCommentTree(comments) {
   return roots;
 }
 export async function getLeaderboard() {
-  const res = await fetch("http://127.0.0.1:8000/api/leaderboard/", {
+  const res = await fetch(`${API_BASE}/leaderboard/`, {
     credentials: "include",
   });
 
