@@ -118,6 +118,21 @@ export async function likePost(postId) {
 
   return res.json();
 }
+
+export async function likeComment(commentId) {
+  const res = await fetch(`${API_BASE}/comments/${commentId}/like/`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to like comment");
+  }
+
+  return res.json();
+}
+
 export async function getComments(postId) {
   const res = await fetch(`${API_BASE}/posts/${postId}/comments/`, {
     credentials: "include",
@@ -145,7 +160,8 @@ export async function createComment(postId, content, parentId = null) {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to create comment");
+    const error = await res.json();
+    throw new Error(error.error || "Failed to create comment");
   }
 
   return res.json();

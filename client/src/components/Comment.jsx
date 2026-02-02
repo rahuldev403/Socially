@@ -1,9 +1,17 @@
 import { useState } from "react";
-import { createComment, deleteComment } from "../api";
+import { createComment, deleteComment, likeComment } from "../api";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, MessageSquare, Send, Loader2, Trash2 } from "lucide-react";
+import {
+  User,
+  MessageSquare,
+  Send,
+  Loader2,
+  Trash2,
+  ThumbsUp,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function Comment({
   comment,
@@ -16,6 +24,22 @@ export default function Comment({
   const [showReply, setShowReply] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [liking, setLiking] = useState(false);
+
+  async function handleLike() {
+    if (comment.liked_by_user) return;
+
+    setLiking(true);
+    try {
+      await likeComment(comment.id);
+      await reload();
+    } catch (error) {
+      console.error("Like error:", error);
+      toast.error(error.message || "Failed to like comment");
+    } finally {
+      setLiking(false);
+    }
+  }
 
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this comment?")) return;
@@ -26,6 +50,7 @@ export default function Comment({
       await reload();
     } catch (error) {
       console.error("Delete error:", error);
+      toast.error(error.message || "Failed to delete comment");
     } finally {
       setDeleting(false);
     }
@@ -44,6 +69,23 @@ export default function Comment({
       <p className="text-sm mt-1 text-foreground">{comment.content}</p>
 
       <div className="flex items-center gap-1 mt-1">
+        <Button
+          onClick={handleLike}
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          disabled={liking || comment.liked_by_user}
+        >
+          {liking ? (
+            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          ) : (
+            <ThumbsUp
+              className={`w-3 h-3 mr-1 ${comment.liked_by_user ? "fill-current" : ""}`}
+            />
+          )}
+          {comment.like_count || 0}
+        </Button>
+
         <Button
           onClick={() => setShowReply(!showReply)}
           variant="ghost"
@@ -89,6 +131,9 @@ export default function Comment({
                 setReply("");
                 setShowReply(false);
                 await reload();
+              } catch (error) {
+                console.error("Comment error:", error);
+                toast.error(error.message || "Failed to create reply");
               } finally {
                 setSubmitting(false);
               }

@@ -2,6 +2,7 @@ import {
   getPosts,
   createPost,
   likePost,
+  likeComment,
   getComments,
   createComment,
   deleteComment,
@@ -173,6 +174,7 @@ function LikeButton({ post, onUpdate }) {
       await onUpdate();
     } catch (error) {
       console.error("Like error:", error);
+      toast.error(error.message || "Failed to like post");
     } finally {
       setLoading(false);
     }
@@ -250,6 +252,9 @@ function CommentSection({ postId, user }) {
                   await createComment(postId, content);
                   setContent("");
                   await loadComments();
+                } catch (error) {
+                  console.error("Comment error:", error);
+                  toast.error(error.message || "Failed to create comment");
                 } finally {
                   setCommentSubmitting(false);
                 }
