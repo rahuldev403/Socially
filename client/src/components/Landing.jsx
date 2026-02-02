@@ -21,7 +21,7 @@ export default function Landing({ onGetStarted }) {
             className="mb-8"
           >
             <h1 className="text-7xl font-bold mb-4 bg-pink-400  bg-clip-text text-transparent">
-                GreenItt
+              Socially
             </h1>
             <p className="text-2xl text-muted-foreground font-medium">
               Share your thoughts, connect with others

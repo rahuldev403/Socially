@@ -35,7 +35,6 @@ export default function App() {
     }
   }
 
- 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -45,7 +44,15 @@ export default function App() {
   }
 
   if (user) {
-    return <Feed user={user} onLogout={logout} />;
+    return (
+      <Feed
+        user={user}
+        onLogout={() => {
+          logout();
+          setShowLanding(true);
+        }}
+      />
+    );
   }
 
   // Show landing page first

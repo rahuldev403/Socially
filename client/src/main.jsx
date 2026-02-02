@@ -7,7 +7,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <>
     <ThemeProvider>
       <AuthProvider>
         <App />
@@ -21,5 +21,5 @@ createRoot(document.getElementById("root")).render(
         className: "toast-custom",
       }}
     />
-  </StrictMode>,
+  </>,
 );
