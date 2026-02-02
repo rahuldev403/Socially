@@ -96,8 +96,8 @@ green-itt/
    # On macOS/Linux:
    source venv/bin/activate
 
-   # Install dependencies
-   pip install django djangorestframework django-cors-headers
+   # Install dependencies from requirements.txt
+   pip install -r requirements.txt
 
    # Run migrations
    python manage.py migrate
