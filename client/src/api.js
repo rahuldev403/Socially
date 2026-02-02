@@ -98,3 +98,67 @@ export async function likePost(postId) {
 
   return res.json();
 }
+export async function getComments(postId) {
+  const res = await fetch(`${API_BASE}/posts/${postId}/comments/`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch comments");
+  }
+
+  return res.json();
+}
+
+export async function createComment(postId, content, parentId = null) {
+  const res = await fetch(`${API_BASE}/comments/`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      post_id: postId,
+      content,
+      parent_id: parentId,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create comment");
+  }
+
+  return res.json();
+}
+
+export function buildCommentTree(comments) {
+  const map = {};
+  const roots = [];
+
+  // Create a map of all comments
+  comments.forEach((comment) => {
+    map[comment.id] = { ...comment, replies: [] };
+  });
+
+  // Build the tree
+  comments.forEach((comment) => {
+    if (comment.parent) {
+      // Add to parent's replies
+      if (map[comment.parent]) {
+        map[comment.parent].replies.push(map[comment.id]);
+      }
+    } else {
+      // Top-level comment
+      roots.push(map[comment.id]);
+    }
+  });
+
+  return roots;
+}
+export async function getLeaderboard() {
+  const res = await fetch("http://127.0.0.1:8000/api/leaderboard/", {
+    credentials: "include",
+  });
+
+  return res.json();
+}

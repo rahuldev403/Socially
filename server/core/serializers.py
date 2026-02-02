@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Post
 from django.contrib.auth.models import User
 from .models import Post, Like
+from .models import Comment
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source="author.username", read_only=True)
@@ -17,3 +18,15 @@ class PostSerializer(serializers.ModelSerializer):
             target_id=obj.id
         ).count()
 
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source="author.username", read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "author",
+            "content",
+            "parent",
+            "created_at",
+        ]
