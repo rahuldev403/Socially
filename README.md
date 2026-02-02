@@ -230,11 +230,47 @@ Output will be in `client/dist/`
 
 For production deployment:
 
-1. Set `DEBUG = False` in `settings.py`
+1. Set `DEBUG = False` in environment variables
 2. Configure a production database (PostgreSQL recommended)
-3. Set up a proper WSGI server (Gunicorn, uWSGI)
-4. Configure static files serving
+3. Set up a proper WSGI server (Gunicorn included in requirements.txt)
+4. Configure static files serving (WhiteNoise included)
 5. Set up HTTPS
+
+### Deploy to Render
+
+This project is configured for easy deployment to Render:
+
+1. **Push your code to GitHub**
+
+2. **Create a new Web Service on Render**
+   - Connect your GitHub repository
+   - Use the following settings:
+     - **Build Command**: `bash build.sh`
+     - **Start Command**: `cd server && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+
+3. **Set Environment Variables**
+
+   ```
+   SECRET_KEY=your-secret-key-here
+   DEBUG=False
+   ALLOWED_HOSTS=your-render-url.onrender.com
+   FRONTEND_URL=https://your-frontend-url.com
+   DB_NAME=your-db-name
+   DB_USER=your-db-user
+   DB_PASSWORD=your-db-password
+   DB_HOST=your-db-host
+   DB_PORT=5432
+   ```
+
+4. **Create a PostgreSQL Database**
+   - Add a PostgreSQL database on Render
+   - Copy the connection details to your environment variables
+
+Alternatively, use the included `render.yaml` for Blueprint deployment:
+
+- Simply connect your repository to Render
+- It will automatically provision the database and web service
+- Set the required environment variables in the Render dashboard
 
 ## 🤝 Contributing
 
