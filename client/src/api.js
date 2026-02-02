@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 // Get CSRF token from cookie
 function getCsrfToken() {
@@ -31,6 +31,25 @@ export async function login(username, password) {
   return res.json();
 }
 
+export async function signup(username, password) {
+  const res = await fetch(`${API_BASE}/auth/signup/`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCsrfToken() || "",
+    },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Signup failed");
+  }
+
+  return res.json();
+}
+
 export async function getMe() {
   const res = await fetch(`${API_BASE}/auth/me/`, {
     method: "GET",
@@ -41,7 +60,7 @@ export async function getMe() {
   });
 
   if (!res.ok) {
-    return null;
+    throw new Error("Not authenticated");
   }
 
   return res.json();
@@ -93,7 +112,8 @@ export async function likePost(postId) {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to like post");
+    const error = await res.json();
+    throw new Error(error.error || "Failed to like post");
   }
 
   return res.json();
@@ -126,6 +146,20 @@ export async function createComment(postId, content, parentId = null) {
 
   if (!res.ok) {
     throw new Error("Failed to create comment");
+  }
+
+  return res.json();
+}
+
+export async function deleteComment(commentId) {
+  const res = await fetch(`${API_BASE}/comments/${commentId}/`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to delete comment");
   }
 
   return res.json();

@@ -40,7 +40,7 @@ def create_post(request):
 @permission_classes([IsAuthenticated])
 def list_posts(request):
     posts = Post.objects.select_related("author").order_by("-created_at")
-    serializer = PostSerializer(posts, many=True)
+    serializer = PostSerializer(posts, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(["POST"])
@@ -55,7 +55,10 @@ def like_post(request, post_id):
         )
         return Response({"liked": True})
     except IntegrityError:
-        return Response({"liked": False})
+        return Response(
+            {"error": "You have already liked this post"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 @api_view(["POST"])
 @authentication_classes([CsrfExemptSessionAuthentication])
@@ -95,6 +98,28 @@ def get_comments(request, post_id):
 
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
+
+@api_view(["DELETE"])
+@authentication_classes([CsrfExemptSessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id)
+        
+        # Only allow author to delete their own comment
+        if comment.author != request.user:
+            return Response(
+                {"error": "You can only delete your own comments"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        comment.delete()
+        return Response({"deleted": True}, status=status.HTTP_200_OK)
+    except Comment.DoesNotExist:
+        return Response(
+            {"error": "Comment not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 @api_view(["GET"])
 def leaderboard(request):

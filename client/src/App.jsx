@@ -1,71 +1,150 @@
-import { useEffect, useState } from "react";
-import { login, getMe, logout } from "./api";
+import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
 import Feed from "./components/Feed";
+import Landing from "./components/Landing";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/Card";
+import Input from "./components/ui/Input";
+import Button from "./components/ui/Button";
+import { motion } from "framer-motion";
+import { LogIn, AlertCircle, Loader2, UserPlus } from "lucide-react";
 
-
-function App() {
-  const [user, setUser] = useState(null);
+export default function App() {
+  const { user, loading: authLoading, login, signup, logout } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
 
-  useEffect(() => {
-    getMe().then(setUser);
-  }, []);
-
-  async function handleLogin(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
-      await login(username, password);
-      const me = await getMe();
-      setUser(me);
-    } catch {
-      setError("Invalid credentials");
+      if (isSignup) {
+        await signup(username, password);
+      } else {
+        await login(username, password);
+      }
+    } catch (err) {
+      setError(err.message || "Authentication failed");
+    } finally {
+      setLoading(false);
     }
   }
 
-  async function handleLogout() {
-    await logout();
-    setUser(null);
+ 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (user) {
-    return <Feed user={user} onLogout={handleLogout} />;
+    return <Feed user={user} onLogout={logout} />;
+  }
+
+  // Show landing page first
+  if (showLanding) {
+    return <Landing onGetStarted={() => setShowLanding(false)} />;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded shadow-md w-80"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
       >
-        <h2 className="text-xl font-bold mb-4 ">Login</h2>
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {isSignup ? (
+                <>
+                  <UserPlus className="w-6 h-6" />
+                  Sign Up
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-6 h-6" />
+                  Login
+                </>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md"
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </motion.div>
+              )}
 
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Username
+                </label>
+                <Input
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
 
-        <input
-          className="border w-full p-2 mb-3"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-        <input
-          className="border w-full p-2 mb-4"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {isSignup ? "Signing up..." : "Logging in..."}
+                  </>
+                ) : isSignup ? (
+                  "Sign Up"
+                ) : (
+                  "Login"
+                )}
+              </Button>
 
-        <button className="w-full bg-blue-600 text-white py-2 rounded">
-          Login
-        </button>
-      </form>
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignup(!isSignup);
+                    setError("");
+                  }}
+                  className="text-sm text-primary hover:underline"
+                >
+                  {isSignup
+                    ? "Already have an account? Login"
+                    : "Don't have an account? Sign up"}
+                </button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }
-
-export default App;

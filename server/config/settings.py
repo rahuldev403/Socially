@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$c=70p5w#-k$33jk(t43&&obj6l=mjv@(s4f8=+-o5)uyul77!'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$c=70p5w#-k$33jk(t43&&obj6l=mjv@(s4f8=+-o5)uyul77!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -141,8 +141,8 @@ REST_FRAMEWORK = {
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    origin.strip() 
+    for origin in os.getenv('FRONTEND_URL', 'http://localhost:5173').split(',')
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -160,6 +160,6 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_DOMAIN = None
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    origin.strip() 
+    for origin in os.getenv('FRONTEND_URL', 'http://localhost:5173').split(',')
 ]

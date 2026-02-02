@@ -12,6 +12,23 @@ dist
 dist-ssr
 *.local
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+db.sqlite3
+db.sqlite3-journal
+venv/
+ENV/
+env/
+.venv
+
+# Environment variables
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
